@@ -10,18 +10,79 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-const writeFileAsync = util.promisify(fs.writeFile);
+//const writeFileAsync = util.promisify(fs.writeFile);
+const output = []
+const questions = [
+    {
+        type: "input",
+        name: "name",
+        message: "Please enter the employee's full name: "
+    },
+    {
+        type: "input",
+        name: "email",
+        message: "What is the employee's email address?"
+    },
+    {
+        type: "input",
+        name: "id",
+        message: "What is the employee's ID number?"
+    },
+    {
+        type: "list",
+        name: "role",
+        message: "What is the employee's role in the team?",
+        choices: ["Manager", "Intern", "Engineer"]
+    },
+    {
+        type: "input",
+        name: "school",
+        message: "What school did the intern attend?",
+        when: function(answers) {
+            return answers.role === "Intern";
+          }
+    },
+    {
+        type: "input",
+        name: "github",
+        message: "What is the engineer's GitHub username?",
+        when: function(answers) {
+            return answers.role === "Engineer";
+          }
+    },
+    {
+        type: "input",
+        name: "office",
+        message: "What is the manager's office number?",
+        when: function(answers) {
+            return answers.role === "Manager";
+          }
+    },
+    {
+        type: "confirm",
+        name: "addEmployee",
+        message: "Would you like to add another employee to the team?"
+    },
+]
+function promptUser(){
+    inquirer.prompt(questions)
+    .then(answers => {
+        output.push(answers)
+        if(answers.addEmployee){
+            promptUser();
+        }
+        else {
+            console.log(output);
+        }
+    })
+    .catch(err => {
+        if(err){
+            console.log("Error: ", err);
+        }
+    })
+}
 
-// function promptUser(){
-//     return inquirer.prompt([
-//         {
-//             type: "input",
-//             name: "name",
-//             message: "Please enter your full name: "
-//         }
-//     ])
-// }
-
+promptUser()
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
