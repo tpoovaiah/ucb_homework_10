@@ -10,9 +10,14 @@ const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
 
-//const writeFileAsync = util.promisify(fs.writeFile);
 const output = []
 const questions = [
+    {
+        type: "list",
+        name: "role",
+        message: "What is the employee's role in the team?",
+        choices: ["Manager", "Intern", "Engineer"]
+    },
     {
         type: "input",
         name: "name",
@@ -27,12 +32,6 @@ const questions = [
         type: "input",
         name: "id",
         message: "What is the employee's ID number?"
-    },
-    {
-        type: "list",
-        name: "role",
-        message: "What is the employee's role in the team?",
-        choices: ["Manager", "Intern", "Engineer"]
     },
     {
         type: "input",
@@ -72,7 +71,26 @@ function promptUser(){
             promptUser();
         }
         else {
-            console.log(output);
+            //console.log(render(output))
+            const team = output.map(worker =>{
+                switch(worker.role){
+                    case "Manager":
+                        return new Manager(worker.name, worker.id, worker.email, worker.office)
+                    case "Engineer":
+                        return new Engineer(worker.name, worker.id, worker.email, worker.github)
+                    case "Intern":
+                        return new Intern(worker.name, worker.id, worker.email, worker.school)
+                    default:
+                        throw "Unknown Employee Type"
+                }
+            });
+            fs.writeFile(outputPath, render(team), err =>{
+                if(err){
+                    throw err
+                }
+                console.log("Success!")
+            });
+            
         }
     })
     .catch(err => {
@@ -82,7 +100,8 @@ function promptUser(){
     })
 }
 
-promptUser()
+promptUser();
+
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
